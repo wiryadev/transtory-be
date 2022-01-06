@@ -21,4 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::prefix('bri')->group(function () {
     Route::get('account/{account}', [BriController::class, 'account']);
+    Route::get('token', [BriController::class, 'getToken']);
 });

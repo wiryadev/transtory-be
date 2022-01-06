@@ -13,6 +13,28 @@ class BriController extends Controller
 {
     private $reqResponse;
 
+    public static function getToken()
+    {
+        $client = new Client();
+        $url = "https://sandbox.partner.api.bri.co.id/oauth/client_credential/accesstoken?grant_type=client_credentials";
+
+        $headers = [
+            'Content-Type' => 'application/x-www-form-urlencoded',
+        ];
+
+        $body = [
+            'client_id' => env('BRI_CLIENT_ID'),
+            'client_secret' => env('BRI_CLIENT_SECRET'),
+        ];
+
+        $response = $client->request('POST', $url, [
+            'headers' => $headers,
+            'form_params' => $body,
+        ]);
+
+        return json_decode($response->getBody())->access_token;
+    }
+
     public function account(Request $request, String $account)
     {
         if (!$account) {
@@ -31,7 +53,8 @@ class BriController extends Controller
 
             $briTimestamp = gmdate("Y-m-d\TH:i:s.000\Z");
 
-            $token = env('BRI_TOKEN');
+            $token = $this::getToken();
+
             $payload = "path=" . "/v2/inquiry/$account" . "&verb=" . "GET" .
                 "&token=Bearer " . $token . "&timestamp=" . $briTimestamp .
                 '&body=';
@@ -39,7 +62,7 @@ class BriController extends Controller
             $signature = base64_encode(hash_hmac('sha256', $payload, env('BRI_CLIENT_SECRET'), true));
 
             $headers = [
-                'Authorization' => "Bearer 1n8Ta9NT5u19PgzusEbQbBAN7xIk",
+                'Authorization' => "Bearer $token",
                 'BRI-Signature' => $signature,
                 'BRI-Timestamp' => $briTimestamp,
             ];
@@ -58,7 +81,7 @@ class BriController extends Controller
             return ResponseFormatter::error(
                 [
                     'message' => $e->getMessage(),
-                    'error' => $this->reqResponse
+                    'error' => $this->reqResponse,
                 ],
                 "Failed Request"
             );
