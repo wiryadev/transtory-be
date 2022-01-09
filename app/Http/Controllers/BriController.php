@@ -87,4 +87,57 @@ class BriController extends Controller
             );
         }
     }
+
+    public function transaction(Request $request)
+    {
+
+        try {
+            $client = new Client();
+            $url = "https://sandbox.partner.api.bri.co.id/v2.0/statement";
+
+            $briTimestamp = gmdate("Y-m-d\TH:i:s.000\Z");
+
+            $token = $this::getToken();
+
+            $data = [
+                'accountNumber' => "008301031142500",
+                'startDate' => "2020-12-01",
+                'endDate' => "2020-12-31"
+            ];
+
+            $payload = "path=" . "/v2.0/statement" . "&verb=" . "POST" .
+                "&token=Bearer " . $token . "&timestamp=" . $briTimestamp .
+                '&body=' . json_encode($data);
+
+            $signature = base64_encode(hash_hmac('sha256', $payload, env('BRI_CLIENT_SECRET'), true));
+
+            $headers = [
+                'Authorization' => "Bearer $token",
+                'BRI-Signature' => $signature,
+                'BRI-Timestamp' => $briTimestamp,
+                'Content-Type' => "application/json",
+                'BRI-External-Id' => "1234"
+            ];
+
+            $response = $client->request('POST', $url, [
+                'headers' => $headers,
+                'json' => $data
+            ]);
+
+            return ResponseFormatter::success(
+                [
+                    'response' => json_decode($response->getBody())->data
+                ],
+                "Successful Request"
+            );
+        } catch (Exception $e) {
+            return ResponseFormatter::error(
+                [
+                    'message' => $e->getMessage(),
+                    'error' => $e,
+                ],
+                "Failed Request"
+            );
+        }
+    }
 }
