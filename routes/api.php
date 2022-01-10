@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::prefix('bri')->group(function () {
-    Route::get('account/{account}', [BriController::class, 'account']);
-    Route::get('transaction', [BriController::class, 'transaction']);
+    Route::post('account', [BriController::class, 'account']);
+    Route::post('transaction', [BriController::class, 'transaction']);
     Route::get('token', [BriController::class, 'getToken']);
 });
