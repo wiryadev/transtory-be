@@ -35,12 +35,13 @@ class BriController extends Controller
         return json_decode($response->getBody())->access_token;
     }
 
-    public function account(Request $request, String $account)
+    public function account(Request $request)
     {
+        $account = $request->input('account');
         if (!$account) {
             return ResponseFormatter::error(
                 [
-                    'account' => $account
+                    'account' => $request->all()
                 ],
                 "Account can not be empty",
                 401
