@@ -49,7 +49,7 @@ class BriController extends Controller
 
         try {
             $client = new Client();
-            $url = "https://sandbox.partner.api.bri.co.id/v2/inquiry/" . $account;
+            $url = env("BRI_BASE_URL") . "/v2/inquiry/" . $account;
 
             $briTimestamp = gmdate("Y-m-d\TH:i:s.000\Z");
 
@@ -93,7 +93,7 @@ class BriController extends Controller
 
         try {
             $client = new Client();
-            $url = "https://sandbox.partner.api.bri.co.id/v2.0/statement";
+            $url = env("BRI_BASE_URL") . "/v2.0/statement";
 
             $briTimestamp = gmdate("Y-m-d\TH:i:s.000\Z");
 
