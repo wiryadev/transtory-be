@@ -16,7 +16,7 @@ class BriController extends Controller
     public static function getToken()
     {
         $client = new Client();
-        $url = "https://sandbox.partner.api.bri.co.id/oauth/client_credential/accesstoken?grant_type=client_credentials";
+        $url = env("BRI_BASE_URL") . "/oauth/client_credential/accesstoken?grant_type=client_credentials";
 
         $headers = [
             'Content-Type' => 'application/x-www-form-urlencoded',
