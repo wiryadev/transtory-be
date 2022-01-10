@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ResponseFormatter;
 use DateTime;
-use DateTimeZone;
 use Exception;
+use DateTimeZone;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use App\Helpers\ResponseFormatter;
+use GuzzleHttp\Exception\RequestException;
 
 class BriController extends Controller
 {
-    private $reqResponse;
+    private $accountResponse;
 
     public static function getToken()
     {
@@ -68,13 +69,13 @@ class BriController extends Controller
                 'BRI-Timestamp' => $briTimestamp,
             ];
 
-            $this->reqResponse = $client->request('GET', $url, [
+            $this->accountResponse = $client->request('GET', $url, [
                 'headers' => $headers
             ]);
 
             return ResponseFormatter::success(
                 [
-                    'response' => json_decode($this->reqResponse->getBody())->Data
+                    'response' => json_decode($this->accountResponse->getBody())->Data
                 ],
                 "Successful Request"
             );
@@ -82,7 +83,7 @@ class BriController extends Controller
             return ResponseFormatter::error(
                 [
                     'message' => $e->getMessage(),
-                    'error' => $this->reqResponse,
+                    'error' => $this->accountResponse,
                 ],
                 "Failed Request"
             );
@@ -91,6 +92,16 @@ class BriController extends Controller
 
     public function transaction(Request $request)
     {
+        $account = $request->input('account');
+        if (!$account) {
+            return ResponseFormatter::error(
+                [
+                    'account' => $request->all()
+                ],
+                "Account can not be empty",
+                401
+            );
+        }
 
         try {
             $client = new Client();
@@ -101,9 +112,9 @@ class BriController extends Controller
             $token = $this::getToken();
 
             $data = [
-                'accountNumber' => "008301031142500",
-                'startDate' => "2020-12-01",
-                'endDate' => "2020-12-31"
+                'accountNumber' => $account,
+                'startDate' => $request->input('start_date', '2020-12-01'),
+                'endDate' =>  $request->input('end_date', '2020-12-31')
             ];
 
             $payload = "path=" . "/v2.0/statement" . "&verb=" . "POST" .
@@ -122,7 +133,7 @@ class BriController extends Controller
 
             $response = $client->request('POST', $url, [
                 'headers' => $headers,
-                'json' => $data
+                'json' => $data,
             ]);
 
             return ResponseFormatter::success(
@@ -131,6 +142,18 @@ class BriController extends Controller
                 ],
                 "Successful Request"
             );
+        } catch (RequestException $e) {
+            if ($e->hasResponse()){
+                $response = $e->getResponse();
+                if ($response->getStatusCode() == '400') {
+                    return ResponseFormatter::error(
+                        [
+                            'message' => json_decode($response->getBody())->responseDescription,
+                        ],
+                        "Failed Request"
+                    );
+                }
+            }
         } catch (Exception $e) {
             return ResponseFormatter::error(
                 [
