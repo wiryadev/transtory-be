@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BniController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BriController;
@@ -23,4 +24,10 @@ Route::prefix('bri')->group(function () {
     Route::post('account', [BriController::class, 'account']);
     Route::post('transaction', [BriController::class, 'transaction']);
     Route::get('token', [BriController::class, 'getToken']);
+});
+
+Route::prefix('bni')->group(function () {
+    Route::post('account', [BniController::class, 'account']);
+    Route::get('token', [BniController::class, 'getToken']);
+    Route::get('signature', [BniController::class, 'generateSignature']);
 });
