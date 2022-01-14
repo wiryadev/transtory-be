@@ -35,10 +35,11 @@ class BniController extends Controller
 
     public function account(Request $request)
     {
-        try {
-            $accountNo = $request->account_no;
-            $token = $this->getToken();
+        $accountNo = $request->account_no;
+        $token = $this->getToken();
+        $signature = $this->getJwtSignature($accountNo);
 
+        try {
             $client = new Client();
             $url = env('BRI_BASE_URL') . "p2pl/inquiry/account/history?access_token=" . $token;
 
@@ -50,11 +51,10 @@ class BniController extends Controller
             $data = [
                 'request' => [
                     'header' => [
-                        'signature' => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXF1ZXN0Ijp7ImhlYWRlciI6eyJjb21wYW55SWQiOiJUcmFuc3RvcnkiLCJwYXJlbnRDb21wYW55SWQiOiIiLCJyZXF1ZXN0VXVpZCI6IjQxM0RERjMzNkExNzRGMDEifSwiYWNjb3VudE51bWJlciI6IjAxMTU0NzYxMTcifX0.dBOZpCe_tYjH1mf3OqC-Hld4TV7ItBIK31Z53AQVr5Q",
-                        // 'signature' => $this->generateSignature($accountNo),
+                        'signature' => $signature,
                         'companyId' => "Transtory",
                         'parentCompanyId' => "",
-                        'requestUuid' => "413DDF336A174F01"
+                        'requestUuid' => env('BNI_REQUEST_UUID')
                     ],
                     'accountNumber' => $accountNo,
                 ],
@@ -93,12 +93,8 @@ class BniController extends Controller
         }
     }
 
-    public function generateSignature(String $accountNo)
-    // public function generateSignature(Request $accountNo)
+    private static function getJwtSignature(String $accountNo)
     {
-        // if (!$accountNo) {
-        //     $accountNo = $accountNo->account_no;
-        // }
         // Create token header as a JSON string
         $header = JSON_encode([
             'alg' => 'HS256',
@@ -106,8 +102,14 @@ class BniController extends Controller
         ]);
         // Create token payload as a JSON string
         $payload = JSON_encode([
-            'clientId' => 'IDBNIU0FOREJPWA==',
-            'accountNo' => $accountNo
+            'request' => [
+                'header' => [
+                    'companyId' => "Transtory",
+                    'parentCompanyId' => "",
+                    'requestUuid' => env('BNI_REQUEST_UUID')
+                ],
+                'accountNumber' => $accountNo
+            ]
         ]);
         // Encode Header to Base64Url String
         $base64UrlHeader = str_replace(
@@ -125,7 +127,7 @@ class BniController extends Controller
         $signature = hash_hmac(
             'sha256',
             $base64UrlHeader . "." . $base64UrlPayload,
-            '(your-API-key-secret)',
+            env('BNI_API_KEY_SECRET'),
             true
         );
         // Encode Signature to Base64Url String

@@ -29,5 +29,4 @@ Route::prefix('bri')->group(function () {
 Route::prefix('bni')->group(function () {
     Route::post('account', [BniController::class, 'account']);
     Route::get('token', [BniController::class, 'getToken']);
-    Route::get('signature', [BniController::class, 'generateSignature']);
 });
