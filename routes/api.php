@@ -23,10 +23,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::prefix('bri')->group(function () {
     Route::post('account', [BriController::class, 'account']);
     Route::post('transaction', [BriController::class, 'transaction']);
-    Route::get('token', [BriController::class, 'getToken']);
 });
 
 Route::prefix('bni')->group(function () {
     Route::post('account', [BniController::class, 'account']);
-    Route::get('token', [BniController::class, 'getToken']);
 });
