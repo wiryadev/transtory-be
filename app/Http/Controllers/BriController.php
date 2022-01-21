@@ -12,12 +12,11 @@ use GuzzleHttp\Exception\RequestException;
 
 class BriController extends Controller
 {
-    private $accountResponse;
 
-    public static function getToken()
+    private static function getToken()
     {
         $client = new Client();
-        $url = env("BRI_BASE_URL") . "/oauth/client_credential/accesstoken?grant_type=client_credentials";
+        $url = env('BRI_BASE_URL') . "/oauth/client_credential/accesstoken?grant_type=client_credentials";
 
         $headers = [
             'Content-Type' => 'application/x-www-form-urlencoded',
@@ -69,21 +68,45 @@ class BriController extends Controller
                 'BRI-Timestamp' => $briTimestamp,
             ];
 
-            $this->accountResponse = $client->request('GET', $url, [
+            $response = $client->request('GET', $url, [
                 'headers' => $headers
             ]);
 
-            return ResponseFormatter::success(
-                [
-                    'response' => json_decode($this->accountResponse->getBody())->Data
-                ],
-                "Successful Request"
-            );
+            $responseBody = json_decode($response->getBody());
+
+            if ($responseBody->responseCode == "0100") {
+                return ResponseFormatter::success(
+                    [
+                        'response' => $responseBody->Data
+                    ],
+                    "Successful Request"
+                );
+            } else {
+                return ResponseFormatter::error(
+                    [
+                        'error' => $responseBody->responseDescription,
+                        'message' => $responseBody->errorDescription,
+                    ],
+                    "Failed Request",
+                    400,
+                );
+            }
+        } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                return ResponseFormatter::error(
+                    [
+                        'message' => json_decode($response->getBody())->responseDescription,
+                    ],
+                    "Failed Request",
+                    $response->getStatusCode(),
+                );
+            }
         } catch (Exception $e) {
             return ResponseFormatter::error(
                 [
+                    'error' => $e,
                     'message' => $e->getMessage(),
-                    'error' => $this->accountResponse,
                 ],
                 "Failed Request"
             );
@@ -143,7 +166,7 @@ class BriController extends Controller
                 "Successful Request"
             );
         } catch (RequestException $e) {
-            if ($e->hasResponse()){
+            if ($e->hasResponse()) {
                 $response = $e->getResponse();
                 if ($response->getStatusCode() == '400') {
                     return ResponseFormatter::error(
