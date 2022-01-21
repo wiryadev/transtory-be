@@ -11,10 +11,10 @@ use GuzzleHttp\Exception\RequestException;
 class BniController extends Controller
 {
 
-    public function getToken()
+    private function getToken()
     {
         $client = new Client();
-        $url = env('BRI_BASE_URL') . "api/oauth/token";
+        $url = env('BNI_BASE_URL') . "api/oauth/token";
 
         $headers = [
             'Content-Type' => "application/x-www-form-urlencoded",
@@ -41,7 +41,7 @@ class BniController extends Controller
 
         try {
             $client = new Client();
-            $url = env('BRI_BASE_URL') . "p2pl/inquiry/account/history?access_token=" . $token;
+            $url = env('BNI_BASE_URL') . "p2pl/inquiry/account/history?access_token=" . $token;
 
             $headers = [
                 'Content-Type' => "application/json",
