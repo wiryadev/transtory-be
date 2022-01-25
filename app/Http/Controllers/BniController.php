@@ -74,9 +74,10 @@ class BniController extends Controller
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
+                $responseBody = json_decode($response->getBody());
                 return ResponseFormatter::error(
                     [
-                        'response' => json_decode($response->getBody())->response,
+                        'error' => $responseBody->{'General Error Response'},
                     ],
                     "Failed Request",
                     $response->getStatusCode(),
