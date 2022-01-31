@@ -16,16 +16,24 @@ class BankSeeder extends Seeder
     {
         $banks = [
             [
-                'name' => "BRI"
+                'name' => "BRI",
+                'created_at' => date("Y-m-d H:i:s", time()),
+                'updated_at' => date("Y-m-d H:i:s", time()),
             ],
             [
-                'name' => "BNI"
+                'name' => "BNI",
+                'created_at' => date("Y-m-d H:i:s", time()),
+                'updated_at' => date("Y-m-d H:i:s", time()),
             ],
             [
-                'name' => "Mandiri"
+                'name' => "Mandiri",
+                'created_at' => date("Y-m-d H:i:s", time()),
+                'updated_at' => date("Y-m-d H:i:s", time()),
             ],
             [
-                'name' => "BSI"
+                'name' => "BSI",
+                'created_at' => date("Y-m-d H:i:s", time()),
+                'updated_at' => date("Y-m-d H:i:s", time()),
             ],
         ];
 
