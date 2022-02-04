@@ -98,4 +98,17 @@ class UserController extends Controller
             );
         }
     }
+
+    /**
+     * Log out to revoke token
+     */
+    public function logout(Request $request)
+    {
+        $token = $request->user()->currentAccessToken()->delete();
+
+        return ResponseFormatter::success(
+            $token,
+            "Token Revoked"
+        );
+    }
 }
