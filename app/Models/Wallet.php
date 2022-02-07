@@ -17,4 +17,21 @@ class Wallet extends Model
         'account_no',
     ];
 
+    /**
+     * Relation: each Wallet belongs to User
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relation: each Wallet associated to only 1 Bank account
+     */
+    public function bank()
+    {
+        return $this->hasOne(Bank::class);
+    }
+    
+
 }
