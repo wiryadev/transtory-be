@@ -52,7 +52,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Relation: user can make more than 1 wallets
+     * Relation: user can make more than 1 Wallet
      */
     public function wallets()
     {
