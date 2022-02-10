@@ -33,7 +33,7 @@ class WalletController extends Controller
         } catch (Exception $e) {
             return ResponseFormatter::error(
                 [
-                    'message' => "Something went wrong",
+                    'message' => $e->getMessage(),
                     'error' => $e
                 ],
                 "Failed to create new wallet",
