@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [UserController::class, 'logout']);
     Route::prefix('wallet')->group(function () {
         Route::post('add', [WalletController::class, 'add']);
+        Route::post('delete', [WalletController::class, 'delete']);
     });
 });
 

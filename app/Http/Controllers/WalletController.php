@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 
 class WalletController extends Controller
 {
+    /**
+     * Create new wallet with given account_no and banks Id
+     */
     public function add(Request $request)
     {
         try {
@@ -37,6 +40,35 @@ class WalletController extends Controller
                     'error' => $e
                 ],
                 "Failed to create new wallet",
+                500
+            );
+        }
+    }
+
+    /**
+     * Delete specific wallet based on given wallet Id
+     */
+    public function delete(Request $request)
+    {
+        try {
+            $request->validate([
+                'id' => ["required", "numeric"],
+            ]);
+
+            $deleted = Wallet::where('id', $request->id)->delete();
+            return ResponseFormatter::success(
+                [
+                    'result' => $deleted
+                ],
+                "Wallet deleted successfully"
+            );
+        } catch (Exception $e) {
+            return ResponseFormatter::error(
+                [
+                    'message' => $e->getMessage(),
+                    'error' => $e
+                ],
+                "Failed to delete wallet",
                 500
             );
         }
