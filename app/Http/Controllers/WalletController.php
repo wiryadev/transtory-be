@@ -7,6 +7,7 @@ use App\Models\Wallet;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseFormatter;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class WalletController extends Controller
 {
@@ -32,6 +33,15 @@ class WalletController extends Controller
                     'wallet' => $wallet
                 ],
                 "Wallet created successfully"
+            );
+        } catch (ValidationException $e) {
+            return ResponseFormatter::error(
+                [
+                    'message' => $e->validator->getMessageBag()->first(),
+                    'error' => $e->getMessage()
+                ],
+                "Failed to create new wallet",
+                500
             );
         } catch (Exception $e) {
             return ResponseFormatter::error(
