@@ -55,6 +55,46 @@ class WalletController extends Controller
         }
     }
 
+    public function update(Request $request)
+    {
+        try {
+            $request->validate([
+                'wallets_id' => ["required", "numeric"],
+                'account_no' => ["required", "string", "max:25", "unique:wallets"]
+            ]);
+
+            $updated = Wallet::where('id', $request->wallets_id)
+                ->update([
+                    'account_no' => $request->account_no,
+                ]);
+
+            return ResponseFormatter::success(
+                [
+                    'result' => $updated
+                ],
+                "Wallet updated successfully"
+            );
+        } catch (ValidationException $e) {
+            return ResponseFormatter::error(
+                [
+                    'message' => $e->validator->getMessageBag()->first(),
+                    'error' => $e->getMessage()
+                ],
+                "Failed to create new wallet",
+                500
+            );
+        } catch (Exception $e) {
+            return ResponseFormatter::error(
+                [
+                    'message' => $e->getMessage(),
+                    'error' => $e
+                ],
+                "Failed to create new wallet",
+                500
+            );
+        }
+    }
+
     /**
      * Delete specific wallet based on given wallet Id
      */
@@ -62,15 +102,24 @@ class WalletController extends Controller
     {
         try {
             $request->validate([
-                'id' => ["required", "numeric"],
+                'wallets_id' => ["required", "numeric"],
             ]);
 
-            $deleted = Wallet::where('id', $request->id)->delete();
+            $deleted = Wallet::where('id', $request->wallets_id)->delete();
             return ResponseFormatter::success(
                 [
                     'result' => $deleted
                 ],
                 "Wallet deleted successfully"
+            );
+        } catch (ValidationException $e) {
+            return ResponseFormatter::error(
+                [
+                    'message' => $e->validator->getMessageBag()->first(),
+                    'error' => $e->getMessage()
+                ],
+                "Failed to create new wallet",
+                500
             );
         } catch (Exception $e) {
             return ResponseFormatter::error(
