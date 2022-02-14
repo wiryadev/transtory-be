@@ -41,7 +41,7 @@ class WalletController extends Controller
                     'error' => $e->getMessage()
                 ],
                 "Failed to create new wallet",
-                500
+                422
             );
         } catch (Exception $e) {
             return ResponseFormatter::error(
@@ -81,7 +81,7 @@ class WalletController extends Controller
                     'error' => $e->getMessage()
                 ],
                 "Failed to create new wallet",
-                500
+                422
             );
         } catch (Exception $e) {
             return ResponseFormatter::error(
@@ -119,7 +119,7 @@ class WalletController extends Controller
                     'error' => $e->getMessage()
                 ],
                 "Failed to create new wallet",
-                500
+                422
             );
         } catch (Exception $e) {
             return ResponseFormatter::error(

@@ -9,6 +9,7 @@ use App\Helpers\ResponseFormatter;
 use Laravel\Fortify\Rules\Password;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -38,6 +39,15 @@ class UserController extends Controller
                     'user' => $user
                 ],
                 "Registration Succeed"
+            );
+        } catch (ValidationException $e) {
+            return ResponseFormatter::error(
+                [
+                    'message' => $e->validator->getMessageBag()->first(),
+                    'error' => $e->getMessage()
+                ],
+                "Failed to create new wallet",
+                422
             );
         } catch (Exception $e) {
             return ResponseFormatter::error(
@@ -86,6 +96,15 @@ class UserController extends Controller
                     'user' => $user,
                 ],
                 "Authentication Succeed"
+            );
+        } catch (ValidationException $e) {
+            return ResponseFormatter::error(
+                [
+                    'message' => $e->validator->getMessageBag()->first(),
+                    'error' => $e->getMessage()
+                ],
+                "Failed to create new wallet",
+                422
             );
         } catch (Exception $e) {
             return ResponseFormatter::error(
