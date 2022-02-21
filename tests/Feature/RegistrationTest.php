@@ -2,53 +2,161 @@
 
 namespace Tests\Feature;
 
-use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Fortify\Features;
-use Laravel\Jetstream\Jetstream;
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_registration_screen_can_be_rendered()
+    /**
+     * Test basic successful user registration
+     */
+    public function test_register_success()
     {
-        if (! Features::enabled(Features::registration())) {
-            return $this->markTestSkipped('Registration support is not enabled.');
-        }
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->post('/register', [
+                'name' => "Test Case",
+                'email' => "test.case@gmail.com",
+                'password' => "test.case",
+                'password_confirmation' => "test.case"
+            ]);
 
-        $response = $this->get('/register');
-
-        $response->assertStatus(200);
+        $response->assertCreated();
     }
 
-    public function test_registration_screen_cannot_be_rendered_if_support_is_disabled()
+    /**
+     * Test successful user registration JSON API
+     * 
+     * use "/api" routing
+     */
+    public function test_register_success_json()
     {
-        if (Features::enabled(Features::registration())) {
-            return $this->markTestSkipped('Registration support is enabled.');
-        }
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/register', [
+                'name' => "Test Case",
+                'email' => "test.case@gmail.com",
+                'password' => "test.case",
+            ]);
 
-        $response = $this->get('/register');
-
-        $response->assertStatus(404);
+        $response->assertOk();
     }
 
-    public function test_new_users_can_register()
+    /**
+     * Test successful user registration JSON API
+     * and check if expected response exists within actual response
+     * 
+     * use "/api" routing
+     */
+    public function test_register_success_json_response()
     {
-        if (! Features::enabled(Features::registration())) {
-            return $this->markTestSkipped('Registration support is not enabled.');
-        }
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/register', [
+                'name' => "Test Case",
+                'email' => "test.case@gmail.com",
+                'password' => "test.case",
+            ]);
 
-        $response = $this->post('/register', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
-            'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),
+        $response->assertJson([
+            'data' => [
+                'user' => [
+                    'name' => "Test Case",
+                    'email' => "test.case@gmail.com",
+                    'is_admin' => 0
+                ]
+            ]
         ]);
+    }
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(RouteServiceProvider::HOME);
+    /**
+     * Test successful user registration JSON API
+     * and check if actual response contains expected data
+     * at a specified given path
+     * 
+     * use "/api" routing
+     */
+    public function test_register_success_json_path()
+    {
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/register', [
+                'name' => "Test Case",
+                'email' => "test.case@gmail.com",
+                'password' => "test.case",
+            ]);
+
+        $response
+            ->assertJsonPath('data.user.name', "Test Case")
+            ->assertJsonPath('data.user.email', "test.case@gmail.com")
+            ->assertJsonPath('data.user.is_admin', 0);
+    }
+
+    public function test_register_failed_empty_name()
+    {
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->post('/register', [
+                'email' => "test.case@gmail.com",
+                'password' => "test.case",
+                'password_confirmation' => "test.case"
+            ]);
+
+        $response->assertUnprocessable();
+    }
+
+    public function test_register_failed_empty_email()
+    {
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->post('/register', [
+                'name' => "Test Case",
+                'password' => "test.case",
+                'password_confirmation' => "test.case"
+            ]);
+
+        $response->assertUnprocessable();
+    }
+
+    public function test_register_failed_email_duplicate()
+    {
+        $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/register', [
+                'name' => "Test Case",
+                'email' => "test.case@gmail.com",
+                'password' => "test.case",
+                'password_confirmation' => "test.case"
+            ]);
+
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->post('/register', [
+                'name' => "Test Case",
+                'email' => "test.case@gmail.com",
+                'password' => "test.case",
+                'password_confirmation' => "test.case"
+            ]);
+
+        $response->assertRedirect();
     }
 }
