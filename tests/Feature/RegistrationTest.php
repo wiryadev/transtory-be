@@ -118,6 +118,50 @@ class RegistrationTest extends TestCase
         $response->assertUnprocessable();
     }
 
+    public function test_register_failed_empty_name_json()
+    {
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/register', [
+                'email' => "test.case@gmail.com",
+                'password' => "test.case",
+                'password_confirmation' => "test.case"
+            ]);
+
+        $response
+            ->assertJsonPath('data.message', "The name field is required.")
+            ->assertJson([
+                'data' => [
+                    'message' => "The name field is required.",
+                    'error' => "The given data was invalid."
+                ]
+            ]);
+    }
+
+    public function test_register_failed_empty_email_json()
+    {
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/register', [
+                'name' => "Test Case",
+                'password' => "test.case",
+                'password_confirmation' => "test.case"
+            ]);
+
+        $response
+            ->assertJsonPath('data.message', "The email field is required.")
+            ->assertJson([
+                'data' => [
+                    'message' => "The email field is required.",
+                    'error' => "The given data was invalid."
+                ]
+            ]);
+    }
+
     public function test_register_failed_empty_email()
     {
         $response = $this
@@ -139,7 +183,7 @@ class RegistrationTest extends TestCase
             ->withHeaders([
                 'Accept' => "application/json"
             ])
-            ->postJson('/register', [
+            ->post('/register', [
                 'name' => "Test Case",
                 'email' => "test.case@gmail.com",
                 'password' => "test.case",
@@ -158,5 +202,40 @@ class RegistrationTest extends TestCase
             ]);
 
         $response->assertRedirect();
+    }
+
+    public function test_register_failed_email_duplicate_json()
+    {
+        $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->post('/register', [
+                'name' => "Test Case",
+                'email' => "test.case@gmail.com",
+                'password' => "test.case",
+                'password_confirmation' => "test.case"
+            ]);
+
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/register', [
+                'name' => "Test Case",
+                'email' => "test.case@gmail.com",
+                'password' => "test.case",
+                'password_confirmation' => "test.case"
+            ]);
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonPath('data.message', "The email has already been taken.")
+            ->assertJson([
+                'data' => [
+                    'message' => "The email has already been taken.",
+                    'error' => "The given data was invalid."
+                ]
+            ]);
     }
 }
