@@ -51,6 +51,31 @@ class RegistrationTest extends TestCase
 
     /**
      * Test successful user registration JSON API
+     * and check if actual response contains expected data
+     * at a specified given path
+     * 
+     * use "/api" routing
+     */
+    public function test_register_success_json_path()
+    {
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/register', [
+                'name' => "Test Case",
+                'email' => "test.case@gmail.com",
+                'password' => "test.case",
+            ]);
+
+        $response
+            ->assertJsonPath('data.user.name', "Test Case")
+            ->assertJsonPath('data.user.email', "test.case@gmail.com")
+            ->assertJsonPath('data.user.is_admin', 0);
+    }
+
+    /**
+     * Test successful user registration JSON API
      * and check if expected response exists within actual response
      * 
      * use "/api" routing
@@ -76,31 +101,6 @@ class RegistrationTest extends TestCase
                 ]
             ]
         ]);
-    }
-
-    /**
-     * Test successful user registration JSON API
-     * and check if actual response contains expected data
-     * at a specified given path
-     * 
-     * use "/api" routing
-     */
-    public function test_register_success_json_path()
-    {
-        $response = $this
-            ->withHeaders([
-                'Accept' => "application/json"
-            ])
-            ->postJson('/api/register', [
-                'name' => "Test Case",
-                'email' => "test.case@gmail.com",
-                'password' => "test.case",
-            ]);
-
-        $response
-            ->assertJsonPath('data.user.name', "Test Case")
-            ->assertJsonPath('data.user.email', "test.case@gmail.com")
-            ->assertJsonPath('data.user.is_admin', 0);
     }
 
     public function test_register_failed_empty_name()
