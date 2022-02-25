@@ -46,7 +46,7 @@ class UserController extends Controller
                     'message' => $e->validator->getMessageBag()->first(),
                     'error' => $e->getMessage()
                 ],
-                "Failed to create new wallet",
+                "Registration Failed",
                 422
             );
         } catch (Exception $e) {
@@ -103,7 +103,7 @@ class UserController extends Controller
                     'message' => $e->validator->getMessageBag()->first(),
                     'error' => $e->getMessage()
                 ],
-                "Failed to create new wallet",
+                "Authentication Failed",
                 422
             );
         } catch (Exception $e) {
