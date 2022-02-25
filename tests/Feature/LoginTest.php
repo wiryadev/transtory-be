@@ -114,4 +114,115 @@ class LoginTest extends TestCase
 
         $this->assertTrue(strlen($response['data']['access_token']) == 42);
     }
+
+    public function test_login_failed_no_data_json()
+    {
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/login', [
+                'email' => "admin@transtory.com",
+                'password' => env('DEFAULT_ADMIN_PASSWORD'),
+            ]);
+
+        $response
+            ->assertUnauthorized()
+            ->assertJsonPath('data.message', "Unauthorized")
+            ->assertJson([
+                'data' => [
+                    'message' => "Unauthorized"
+                ]
+            ]);
+    }
+
+    public function test_login_failed_empty_email_json()
+    {
+        $this->seed(UserSeeder::class);
+
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/login', [
+                'password' => env('DEFAULT_ADMIN_PASSWORD'),
+            ]);
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonPath('data.message', "The email field is required.")
+            ->assertJson([
+                'data' => [
+                    'message' => "The email field is required."
+                ]
+            ]);
+    }
+
+    public function test_login_failed_empty_password_json()
+    {
+        $this->seed(UserSeeder::class);
+
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/login', [
+                'email' => "admin@transtory.com",
+            ]);
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonPath('data.message', "The password field is required.")
+            ->assertJson([
+                'data' => [
+                    'message' => "The password field is required."
+                ]
+            ]);
+    }
+
+    public function test_login_failed_wrong_password_json()
+    {
+        $this->seed(UserSeeder::class);
+
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/login', [
+                'email' => "admin@transtory.com",
+                'password' => "env('DEFAULT_ADMIN_PASSWORD')",
+            ]);
+
+        $response
+            ->assertUnauthorized()
+            ->assertJsonPath('data.message', "Unauthorized")
+            ->assertJson([
+                'data' => [
+                    'message' => "Unauthorized"
+                ]
+            ]);
+    }
+
+    public function test_login_failed_wrong_email_json()
+    {
+        $this->seed(UserSeeder::class);
+
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/login', [
+                'email' => "admin@transtory.co.id",
+                'password' => env('DEFAULT_ADMIN_PASSWORD'),
+            ]);
+
+        $response
+            ->assertUnauthorized()
+            ->assertJsonPath('data.message', "Unauthorized")
+            ->assertJson([
+                'data' => [
+                    'message' => "Unauthorized"
+                ]
+            ]);
+    }
 }
