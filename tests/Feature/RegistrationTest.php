@@ -140,6 +140,21 @@ class RegistrationTest extends TestCase
             ]);
     }
 
+    public function test_register_failed_empty_email()
+    {
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->post('/register', [
+                'name' => "Test Case",
+                'password' => "test.case",
+                'password_confirmation' => "test.case"
+            ]);
+
+        $response->assertUnprocessable();
+    }
+
     public function test_register_failed_empty_email_json()
     {
         $response = $this
@@ -160,21 +175,6 @@ class RegistrationTest extends TestCase
                     'error' => "The given data was invalid."
                 ]
             ]);
-    }
-
-    public function test_register_failed_empty_email()
-    {
-        $response = $this
-            ->withHeaders([
-                'Accept' => "application/json"
-            ])
-            ->post('/register', [
-                'name' => "Test Case",
-                'password' => "test.case",
-                'password_confirmation' => "test.case"
-            ]);
-
-        $response->assertUnprocessable();
     }
 
     public function test_register_failed_email_duplicate()
