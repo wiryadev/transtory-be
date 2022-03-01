@@ -88,4 +88,40 @@ class AddWalletTest extends TestCase
                 ]
             ]);
     }
+
+    public function test_add_wallet_failed_account_no()
+    {
+        $this->seed();
+        $accountNumber = "01157690897";
+
+        $loginResponse = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/login', [
+                'email' => "admin@transtory.com",
+                'password' => env('DEFAULT_ADMIN_PASSWORD'),
+            ]);
+
+        $token = $loginResponse['data']['access_token'];
+
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json",
+                'Authorization' => "Bearer $token",
+            ])
+            ->postJson('/api/wallet/add', [
+                'banks_id' => "1",
+            ]);
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonPath('data.message', "The account no field is required.")
+            ->assertJson([
+                'data' => [
+                    'message' => "The account no field is required."
+                ]
+            ]);
+    }
+
 }
