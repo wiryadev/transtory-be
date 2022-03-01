@@ -17,6 +17,7 @@ class AddWalletTest extends TestCase
     public function test_example()
     {
         $this->seed();
+        $accountNumber = "01157690897";
 
         $loginResponse = $this
             ->withHeaders([
@@ -30,15 +31,26 @@ class AddWalletTest extends TestCase
         $token = $loginResponse['data']['access_token'];
 
         $response = $this
-        ->withHeaders([
-            'Accept' => "application/json",
-            'Authorization' => "Bearer $token",
-        ])
-        ->postJson('/api/wallet/add', [
-            'banks_id' => "1",
-            'account_no' => "01157690897",
-        ]);
+            ->withHeaders([
+                'Accept' => "application/json",
+                'Authorization' => "Bearer $token",
+            ])
+            ->postJson('/api/wallet/add', [
+                'banks_id' => "1",
+                'account_no' => $accountNumber,
+            ]);
 
-        $response->assertOk();
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.wallet.banks_id', "1")
+            ->assertJsonPath('data.wallet.account_no', $accountNumber)
+            ->assertJson([
+                'data' => [
+                    'wallet' => [
+                        'banks_id' => "1",
+                        'account_no' => $accountNumber
+                    ]
+                ]
+            ]);
     }
 }
