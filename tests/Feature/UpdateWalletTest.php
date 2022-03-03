@@ -21,7 +21,7 @@ class UpdateWalletTest extends TestCase
         $this->seed();
         $this->seed(WalletSeeder::class);
 
-        $this
+        $loginResponse = $this
             ->withHeaders([
                 'Accept' => "application/json"
             ])
@@ -30,11 +30,13 @@ class UpdateWalletTest extends TestCase
                 'password' => env('DEFAULT_ADMIN_PASSWORD'),
             ]);
 
+        $token = $loginResponse['data']['access_token'];
         $newAccountNo = "888801000157510";
 
         $response = $this
             ->withHeaders([
-                'Accept' => "application/json"
+                'Accept' => "application/json",
+                'Authorization' => "Bearer $token",
             ])
             ->postJson('/api/wallet/update', [
                 'wallets_id' => "1",
@@ -42,12 +44,48 @@ class UpdateWalletTest extends TestCase
             ]);
 
         $response
-            ->assertStatus(200)
+            ->assertOk()
             ->assertJsonPath('data.result', 1)
             ->assertJsonPath('meta.message', "Wallet updated successfully")
             ->assertJson([
                 'data' => [
                     'result' => 1
+                ]
+            ]);
+    }
+
+    public function test_update_wallet_failed_account_no()
+    {
+
+        $this->seed();
+        $this->seed(WalletSeeder::class);
+
+        $loginResponse = $this
+            ->withHeaders([
+                'Accept' => "application/json"
+            ])
+            ->postJson('/api/login', [
+                'email' => "admin@transtory.com",
+                'password' => env('DEFAULT_ADMIN_PASSWORD'),
+            ]);
+
+        $token = $loginResponse['data']['access_token'];
+
+        $response = $this
+            ->withHeaders([
+                'Accept' => "application/json",
+                'Authorization' => "Bearer $token",
+            ])
+            ->postJson('/api/wallet/update', [
+                'wallets_id' => "1",
+            ]);
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonPath('data.message', "The account no field is required.")
+            ->assertJson([
+                'data' => [
+                    'message' => "The account no field is required."
                 ]
             ]);
     }
