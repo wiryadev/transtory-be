@@ -17,7 +17,7 @@ class AddWalletTest extends TestCase
     public function test_add_wallet_success()
     {
         $this->seed();
-        $accountNumber = "01157690897";
+        $accountNumber = env('DUMMY_ACCOUNT_NO');
 
         $loginResponse = $this
             ->withHeaders([
@@ -57,7 +57,6 @@ class AddWalletTest extends TestCase
     public function test_add_wallet_failed_bank_id()
     {
         $this->seed();
-        $accountNumber = "01157690897";
 
         $loginResponse = $this
             ->withHeaders([
@@ -76,7 +75,7 @@ class AddWalletTest extends TestCase
                 'Authorization' => "Bearer $token",
             ])
             ->postJson('/api/wallet/add', [
-                'account_no' => $accountNumber,
+                'account_no' => env('DUMMY_ACCOUNT_NO'),
             ]);
 
         $response
@@ -92,7 +91,6 @@ class AddWalletTest extends TestCase
     public function test_add_wallet_failed_account_no()
     {
         $this->seed();
-        $accountNumber = "01157690897";
 
         $loginResponse = $this
             ->withHeaders([
