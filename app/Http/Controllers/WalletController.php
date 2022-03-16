@@ -63,6 +63,17 @@ class WalletController extends Controller
                 'account_no' => ["required", "string", "max:25", "unique:wallets"]
             ]);
 
+            $wallet = Wallet::where('id', $request->wallets_id)->first();
+            if (Auth::user()->id != $wallet['users_id']) {
+                return ResponseFormatter::error(
+                    [
+                        'error' => "User and wallet mismatch"
+                    ],
+                    "Unauthorized",
+                    401
+                );
+            }
+
             $updated = Wallet::where('id', $request->wallets_id)
                 ->update([
                     'account_no' => $request->account_no,
@@ -80,7 +91,7 @@ class WalletController extends Controller
                     'message' => $e->validator->getMessageBag()->first(),
                     'error' => $e->getMessage()
                 ],
-                "Failed to create new wallet",
+                "Failed to update wallet",
                 422
             );
         } catch (Exception $e) {
@@ -89,7 +100,7 @@ class WalletController extends Controller
                     'message' => $e->getMessage(),
                     'error' => $e
                 ],
-                "Failed to create new wallet",
+                "Failed to update wallet",
                 500
             );
         }
@@ -105,6 +116,17 @@ class WalletController extends Controller
                 'wallets_id' => ["required", "numeric"],
             ]);
 
+            $wallet = Wallet::where('id', $request->wallets_id)->first();
+            if (Auth::user()->id != $wallet['users_id']) {
+                return ResponseFormatter::error(
+                    [
+                        'error' => "User and wallet mismatch"
+                    ],
+                    "Unauthorized",
+                    401
+                );
+            }
+
             $deleted = Wallet::where('id', $request->wallets_id)->delete();
             return ResponseFormatter::success(
                 [
@@ -118,7 +140,7 @@ class WalletController extends Controller
                     'message' => $e->validator->getMessageBag()->first(),
                     'error' => $e->getMessage()
                 ],
-                "Failed to create new wallet",
+                "Failed to delete wallet",
                 422
             );
         } catch (Exception $e) {
