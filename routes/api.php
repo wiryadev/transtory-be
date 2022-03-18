@@ -23,6 +23,8 @@ Route::post('login', [UserController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [UserController::class, 'logout']);
+    Route::post('password/update', [UserController::class, 'updatePassword']);
+
     Route::prefix('wallet')->group(function () {
         Route::post('add', [WalletController::class, 'add']);
         Route::post('update', [WalletController::class, 'update']);

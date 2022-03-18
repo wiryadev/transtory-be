@@ -118,6 +118,57 @@ class UserController extends Controller
         }
     }
 
+    public function updatePassword(Request $request)
+    {
+        try {
+            $request->validate([
+                'old_password' => ["required", "string"],
+                'new_password' => ["required", "string", new Password],
+                'confirm_password' => ["required", "string"],
+            ]);
+
+            $authUserId = Auth::user()->id;
+            $user = User::where('id', $authUserId)->first();
+
+            if (!Hash::check($request->old_password, $user->password)) {
+                throw new Exception("Invalid Credentials");
+            }
+
+            if ($request->new_password != $request->confirm_password) {
+                throw new Exception("Password confirmation does not match");
+            }
+
+            $result = $user->update([
+                'password' => Hash::make($request->new_password)
+            ]);
+
+            return ResponseFormatter::success(
+                [
+                    'result' => $result,
+                ],
+                "Password Update Succeed"
+            );
+        } catch (ValidationException $e) {
+            return ResponseFormatter::error(
+                [
+                    'message' => $e->validator->getMessageBag()->first(),
+                    'error' => $e->getMessage()
+                ],
+                "Password Update Failed",
+                422
+            );
+        } catch (Exception $e) {
+            return ResponseFormatter::error(
+                [
+                    'message' => $e->getMessage(),
+                    'error' => $e,
+                ],
+                "Password Update Failed",
+                401,
+            );
+        }
+    }
+
     /**
      * Log out to revoke token
      */
