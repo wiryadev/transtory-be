@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\BniController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BniController;
 use App\Http\Controllers\BriController;
+use App\Http\Controllers\BsiController;
+use App\Http\Controllers\MandiriController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WalletController;
 
@@ -39,4 +41,14 @@ Route::prefix('bri')->group(function () {
 
 Route::prefix('bni')->group(function () {
     Route::post('account', [BniController::class, 'account']);
+});
+
+Route::prefix('bsi')->group(function () {
+    Route::get('transaction', [BsiController::class, 'index']);
+    Route::get('transaction/{accountNum}', [BsiController::class, 'transaction']);
+});
+
+Route::prefix('mandiri')->group(function () {
+    Route::get('transaction', [MandiriController::class, 'index']);
+    Route::get('transaction/{accountNum}', [MandiriController::class, 'transaction']);
 });
