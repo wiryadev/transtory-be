@@ -19,8 +19,9 @@ class UserSeeder extends Seeder
             'name' => "Admin",
             'email' => "admin@transtory.com",
             'email_verified_at' => date("Y-m-d H:i:s", time()),
-            'password' => Hash::make(env('DEFAULT_ADMIN_PASSWORD')),
+            'password' => 'password',
             'is_admin' => true,
         ]);
+        User::factory(20)->create();
     }
 }
