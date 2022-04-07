@@ -118,6 +118,26 @@ class UserController extends Controller
         }
     }
 
+    public function user(Request $request)
+    {
+        try {
+            $user = User::with('wallets')->where('id', $request->user()->id)->get();
+            return ResponseFormatter::success(
+                $user,
+                "Fetch user data completed"
+            );
+        } catch (Exception $e) {
+            return ResponseFormatter::error(
+                [
+                    'message' => "Something went wrong",
+                    'error' => $e,
+                ],
+                "Authentication Failed",
+                401,
+            );
+        }
+    }
+
     public function updatePassword(Request $request)
     {
         try {
